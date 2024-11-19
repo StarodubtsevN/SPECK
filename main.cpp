@@ -8,21 +8,21 @@
 using namespace std;
 using namespace std::chrono;
 
-const int ROUNDS = 27; // Number of rounds for SPECK64/128
+const int ROUNDS = 27; // Количество раундов для SPECK64/128
 using u64 = uint64_t;
 using u32 = uint32_t;
 
-// Function for rotating bits to the right
+// Функция побитового сдвига вправо
 u64 rotate_right(u64 x, int r) {
     return (x >> r) | (x << (64 - r));
 }
 
-// Function for rotating bits to the left
+// Функция побитового сдвига влево
 u64 rotate_left(u64 x, int r) {
     return (x << r) | (x >> (64 - r));
 }
 
-// Encryption function for a single block
+// Функция шифрования для одного блока
 void encrypt(u64& left, u64& right, const vector<u64>& round_keys) {
     for (int i = 0; i < ROUNDS; ++i) {
         left = (rotate_right(left, 8) + right) ^ round_keys[i];
@@ -30,7 +30,7 @@ void encrypt(u64& left, u64& right, const vector<u64>& round_keys) {
     }
 }
 
-// Decryption function for a single block
+// Функция расшифровки для одного блока
 void decrypt(u64& left, u64& right, const vector<u64>& round_keys) {
     for (int i = ROUNDS - 1; i >= 0; --i) {
         right = rotate_right(right ^ left, 3);
@@ -38,7 +38,7 @@ void decrypt(u64& left, u64& right, const vector<u64>& round_keys) {
     }
 }
 
-// Round keys generation
+// Генерация круглых ключей
 vector<u64> key_schedule(const vector<u64>& key) {
     vector<u64> round_keys(ROUNDS);
     u64 b = key[0];
@@ -53,7 +53,7 @@ vector<u64> key_schedule(const vector<u64>& key) {
     return round_keys;
 }
 
-// Function to generate a random 128-bit key
+// Функция для генерации случайного 128-битного ключа
 vector<u64> generate_random_key() {
     random_device rd;
     mt19937_64 gen(rd());
@@ -66,7 +66,7 @@ vector<u64> generate_random_key() {
     return key;
 }
 
-// Pad text to a multiple of 16 bytes (128 bits)
+// Разбиение текста на части, кратные 16 байтам (128 бит)
 string pad_text(const string& text) {
     string padded_text = text;
     size_t padding_needed = 16 - (text.size() % 16);
@@ -76,7 +76,7 @@ string pad_text(const string& text) {
     return padded_text;
 }
 
-// Encrypt a long text using ECB mode
+// Шифрование длинного текста в режиме ECB
 string encrypt_text(const string& text, const vector<u64>& round_keys) {
     string padded_text = pad_text(text);
     string encrypted_text;
@@ -93,7 +93,7 @@ string encrypt_text(const string& text, const vector<u64>& round_keys) {
     return encrypted_text;
 }
 
-// Decrypt a long text using ECB mode
+// Дешифрование длинного текста с помощью режима ECB
 string decrypt_text(const string& text, const vector<u64>& round_keys) {
     string decrypted_text;
 
@@ -109,7 +109,7 @@ string decrypt_text(const string& text, const vector<u64>& round_keys) {
     return decrypted_text;
 }
 
-// Convert hex string to a vector of 64-bit integers
+// Преобразование шестнадцатеричной строки в вектор 64-битных целых чисел
 vector<u64> hex_to_key(const string& hex) {
     vector<u64> key(4);
     for (int i = 0; i < 4; ++i) {
@@ -118,14 +118,14 @@ vector<u64> hex_to_key(const string& hex) {
     return key;
 }
 
-// Print data in hexadecimal format
+// Вывод данных в шестнадцатеричном формате
 void print_hex(const string& text) {
     for (unsigned char c : text) {
         cout << hex << setw(2) << setfill('0') << (int)c;
     }
 }
 
-// Print 64-bit key parts in hexadecimal format
+// Вывод 64-битных частей ключа в шестнадцатеричном формате
 void print_key(const vector<u64>& key) {
     for (const auto& k : key) {
         cout << hex << setw(16) << setfill('0') << k;
@@ -137,10 +137,10 @@ int main() {
         cout << "Choose an option:\n1. Encrypt text\n2. Decrypt text\n3. Exit\n";
         int choice;
         cin >> choice;
-        cin.ignore(); // Ignore the newline character after the choice
+        cin.ignore(); // Игнорирование символа новой строки после выбора
 
         if (choice == 1) {
-            // Encryption mode
+            // Режим шифрования
             vector<u64> key = generate_random_key();
             auto round_keys = key_schedule(key);
 
@@ -160,7 +160,7 @@ int main() {
             cout << "\nEncryption time: " << duration_cast<nanoseconds>(end - start).count() << " nanoseconds\n";
 
         } else if (choice == 2) {
-            // Decryption mode
+            // Режим дешифрования
             cout << "Enter encrypted text (hex): ";
             string hex_text;
             cin >> hex_text;
@@ -182,12 +182,12 @@ int main() {
             cout << "\nDecrypted text: " << decrypted_text << endl;
 
         } else if (choice == 3) {
-            break; // Exit the program
+            break; // Выход из программы
         } else {
             cout << "Invalid choice. Please try again.\n";
         }
 
-        cout << "\n"; // Add a newline for better readability
+        cout << "\n"; // Добавление новой строки для лучшей читабельности
     }
 
     return 0;
