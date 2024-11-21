@@ -25,7 +25,8 @@ u64 rotate_left(u64 x, int r) {
 // Функция шифрования для одного блока
 void encrypt(u64& left, u64& right, const vector<u64>& round_keys) {
     for (int i = 0; i < ROUNDS; ++i) {
-        left = (rotate_right(left, 8) + right) ^ round_keys[i];
+        left = (rotate_right(left, 8) + right) & 0xFFFFFFFFFFFFFFFFULL; // Сложение по модулю 2^64
+        left ^= round_keys[i];
         right = rotate_left(right, 3) ^ left;
     }
 }
